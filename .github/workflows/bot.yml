@@ -1,0 +1,28 @@
+name: QQ Bot Runner
+
+on:
+  repository_dispatch:
+    types: [qq_message]
+
+jobs:
+  handle-message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai loguru httpx
+          
+      - name: Run bot logic
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+        run: python bot.py "${{ toJSON(github.event.client_payload) }}"
